@@ -17,4 +17,4 @@ Easy to use:
 }];
 ```  
 
-The category itself defines the top controller for display. Enjoy.
+The class itself defines the top controller for display. Enjoy.
