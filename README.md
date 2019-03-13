@@ -5,9 +5,9 @@ Easy to use:
 ```
 [Alert showWithTitle:@"Title"
              message:@"Text"
-             buttons:@[[@"Destructive" destructiveStyle],
-                        @"OK",
-                       [@"Cancel" cancelStyle]]
+             buttons:@[@"Destructive".destructiveStyle,
+                       @"OK",
+                       @"Cancel".cancelStyle]
              handler:^(NSInteger buttonIndex)
 {
   if (buttonIndex == 1)
