@@ -1,23 +1,25 @@
 //
 //  Alert.h
-//  v.1.3
+//  v.1.4
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
 //
 //  Пример использования
 //
-//  [Alert showWithTitle:@"Title"
-//               message:@"Text"
-//               buttons:@[[@"Destructive" destructiveStyle],
-//                         @"OK",
-//                         [@"Cancel" cancelStyle]]
-//               handler:^(NSInteger buttonIndex)
-//   {
-//       if (buttonIndex == 0)
-//       {
-//       }
-//   }];
+/*
+[Alert showWithTitle:@"Title"
+             message:@"Text"
+             buttons:@[[@"Destructive" destructiveStyle],
+                       @"OK",
+                       [@"Cancel" cancelStyle]]
+             handler:^(NSInteger buttonIndex)
+ {
+     if (buttonIndex == 0)
+     {
+     }
+ }];
+*/
 
 #import <Foundation/Foundation.h>
 #import "TargetConditionals.h"

@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.1.3
+//  v.1.4
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -134,7 +134,8 @@
           style:style
           handler:^(UIAlertAction *action)
           {
-              handler([array indexOfObject:button]);
+              if (handler)
+                  handler([array indexOfObject:button]);
           }]];
     }
     
@@ -192,7 +193,8 @@
         [alert beginSheetModalForWindow:NSApp.mainWindow
                       completionHandler:^(NSModalResponse returnCode)
         {
-            handler([alert.buttons[returnCode] tag]);
+            if (handler)
+                handler([alert.buttons[returnCode] tag]);
         }];
     });
 }
