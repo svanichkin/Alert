@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.1.4
+//  v.1.5
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -147,15 +147,15 @@
         window.backgroundColor =
         UIColor.clearColor;
         
-        [window makeKeyAndVisible];
-        
         NSInteger maxZOrder = NSIntegerMin;
         
         for (UIWindow *w in UIApplication.sharedApplication.windows)
-            if (w.windowLevel > maxZOrder && w != window)
-                maxZOrder = window.windowLevel;
-        
+            if (w.windowLevel > maxZOrder)
+                maxZOrder = w.windowLevel;
+
         window.windowLevel = maxZOrder + 1;
+        
+        [window makeKeyAndVisible];
         
         window.rootViewController =
         UIViewController.new;
