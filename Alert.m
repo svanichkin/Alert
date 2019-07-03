@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.1.5
+//  v.1.6
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -92,13 +92,78 @@
 
 @end
 
+@interface Alert()
+
+@property (nonatomic, strong) NSTimer                     *timer;
+@property (nonatomic, strong) NSMutableArray <UIWindow *> *windows;
+
+@end
+
 @implementation Alert
 
 #if TARGET_OS_IPHONE
++(instancetype)current
+{
+    static Alert *_current = nil;
+    static dispatch_once_t oncePredicate;
+    
+    dispatch_once(&oncePredicate, ^
+    {
+        _current = Alert.new;
+    });
+    
+    return _current;
+}
+
+-(instancetype)init
+{
+    if (self = [super init])
+    {
+        self.windows =
+        NSMutableArray.new;
+    }
+    
+    return self;
+}
+
+-(void)startTimer
+{
+    if (self.timer)
+        return;
+    
+    self.timer =
+    [NSTimer scheduledTimerWithTimeInterval:0.5
+                                    repeats:YES
+                                      block:^(NSTimer *timer)
+     {
+         NSMutableArray <UIWindow *> *dismessed =
+         NSMutableArray.new;
+         
+         // Пробегаем по нашим отображаемым окнам
+         for (UIWindow *window in self.windows)
+             // Если контроллер был dissmissed добавим в массив
+             if (window.rootViewController.presentedViewController == NO)
+                 [dismessed addObject:window];
+         
+         if (dismessed.count)
+             [self.windows removeObjectsInArray:dismessed];
+         
+         if (self.windows.count == 0)
+             [self stopTimer];
+     }];
+}
+
+-(void)stopTimer
+{
+    [self.timer invalidate];
+    
+    self.timer = nil;
+}
+
 +(void)showWithTitle:(NSString             *)title
-             message:(NSString             *)message
-             buttons:(NSArray <NSString *> *)buttons
-             handler:(AlertButtonHandle     )handler
+           message:(NSString             *)message
+           buttons:(NSArray <NSString *> *)buttons
+           handler:(AlertButtonHandle     )handler
 {
     UIAlertController *controller =
     [UIAlertController
@@ -144,6 +209,8 @@
         UIWindow *window =
         UIWindow.new;
         
+        [Alert.current.windows addObject:window];
+        
         window.backgroundColor =
         UIColor.clearColor;
         
@@ -164,6 +231,8 @@
          presentViewController:controller
          animated:YES
          completion:nil];
+        
+        [Alert.current startTimer];
     });
 }
 
