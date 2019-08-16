@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.1.6
+//  v.1.7
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -161,9 +161,9 @@
 }
 
 +(void)showWithTitle:(NSString             *)title
-           message:(NSString             *)message
-           buttons:(NSArray <NSString *> *)buttons
-           handler:(AlertButtonHandle     )handler
+             message:(NSString             *)message
+             buttons:(NSArray <NSString *> *)buttons
+             handler:(AlertButtonHandle     )handler
 {
     UIAlertController *controller =
     [UIAlertController
@@ -208,30 +208,32 @@
     {
         UIWindow *window =
         UIWindow.new;
-        
+
         [Alert.current.windows addObject:window];
-        
+
         window.backgroundColor =
         UIColor.clearColor;
-        
+
         NSInteger maxZOrder = NSIntegerMin;
-        
+
         for (UIWindow *w in UIApplication.sharedApplication.windows)
             if (w.windowLevel > maxZOrder)
                 maxZOrder = w.windowLevel;
 
         window.windowLevel = maxZOrder + 1;
-        
+
         [window makeKeyAndVisible];
-        
+
         window.rootViewController =
         UIViewController.new;
+
+        controller.modalPresentationStyle = UIModalPresentationFullScreen;
         
         [window.rootViewController
          presentViewController:controller
          animated:YES
          completion:nil];
-        
+
         [Alert.current startTimer];
     });
 }
