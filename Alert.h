@@ -1,6 +1,6 @@
 //
 //  Alert.h
-//  v.1.7
+//  v.1.8
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -8,15 +8,17 @@
 //  Пример использования
 //
 /*
-[Alert showWithTitle:@"Title"
-             message:@"Text"
-             buttons:@[[@"Destructive" destructiveStyle],
-                       @"OK",
-                       [@"Cancel" cancelStyle]]
-             handler:^(NSInteger buttonIndex)
+[Alert
+ showWithTitle:@"Title"
+ message:@"Text"
+ buttons:@[[@"Destructive" destructiveStyle],
+            @"OK",
+           [@"Cancel" cancelStyle]]
+ handler:^(NSInteger buttonIndex)
  {
      if (buttonIndex == 0)
      {
+        // Destructive
      }
  }];
 */

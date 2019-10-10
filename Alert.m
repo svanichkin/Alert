@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.1.7
+//  v.1.8
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -135,22 +135,22 @@
     [NSTimer scheduledTimerWithTimeInterval:0.5
                                     repeats:YES
                                       block:^(NSTimer *timer)
-     {
-         NSMutableArray <UIWindow *> *dismessed =
-         NSMutableArray.new;
-         
-         // Пробегаем по нашим отображаемым окнам
-         for (UIWindow *window in self.windows)
-             // Если контроллер был dissmissed добавим в массив
-             if (window.rootViewController.presentedViewController == NO)
-                 [dismessed addObject:window];
-         
-         if (dismessed.count)
-             [self.windows removeObjectsInArray:dismessed];
-         
-         if (self.windows.count == 0)
-             [self stopTimer];
-     }];
+    {
+        NSMutableArray <UIWindow *> *dismessed =
+        NSMutableArray.new;
+        
+        // Пробегаем по нашим отображаемым окнам
+        for (UIWindow *window in self.windows)
+            // Если контроллер был dissmissed добавим в массив
+            if (window.rootViewController.presentedViewController == NO)
+                [dismessed addObject:window];
+        
+        if (dismessed.count)
+            [self.windows removeObjectsInArray:dismessed];
+        
+        if (self.windows.count == 0)
+            [self stopTimer];
+    }];
 }
 
 -(void)stopTimer
@@ -228,6 +228,9 @@
         UIViewController.new;
 
         controller.modalPresentationStyle = UIModalPresentationFullScreen;
+
+        if (@available(iOS 13.0, *))
+            controller.modalInPresentation = YES;
         
         [window.rootViewController
          presentViewController:controller
