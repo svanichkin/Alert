@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.1.8
+//  v.2.0
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -94,14 +94,37 @@
 
 @interface Alert()
 
+#if TARGET_OS_IPHONE
 @property (nonatomic, strong) NSTimer                     *timer;
 @property (nonatomic, strong) NSMutableArray <UIWindow *> *windows;
+#endif
 
 @end
 
 @implementation Alert
 
 #if TARGET_OS_IPHONE
++(NSString *)localizedButtonTitle:(NSString *)englishTitle;
+{
+    if (englishTitle == nil)
+        return
+        nil;
+    
+    NSString *localizedTitle =
+    [[NSBundle bundleForClass:UIApplication.class]
+     localizedStringForKey:englishTitle
+     value:nil
+     table:nil];
+    
+    if (localizedTitle == nil ||
+        [englishTitle isEqualToString:localizedTitle])
+        return
+        NSLocalizedString(englishTitle, nil);
+    
+    return
+    localizedTitle;
+}
+
 +(instancetype)current
 {
     static Alert *_current = nil;
@@ -132,9 +155,10 @@
         return;
     
     self.timer =
-    [NSTimer scheduledTimerWithTimeInterval:0.5
-                                    repeats:YES
-                                      block:^(NSTimer *timer)
+    [NSTimer
+     scheduledTimerWithTimeInterval:0.5
+     repeats:YES
+     block:^(NSTimer *timer)
     {
         NSMutableArray <UIWindow *> *dismessed =
         NSMutableArray.new;
@@ -175,7 +199,7 @@
     NSMutableArray.new;
     
     if (buttons == nil)
-        [array addObject:OK_BUTTON];
+        [array addObject:@"OK"];
     
     else
         [array addObjectsFromArray:buttons];
@@ -240,23 +264,50 @@
         [Alert.current startTimer];
     });
 }
-
 #else
+
++(NSString *)localizedButtonTitle:(NSString *)englishTitle;
+{
+    if (englishTitle == nil)
+        return
+        nil;
+    
+    NSString *localizedTitle =
+    [[NSBundle bundleForClass:NSApplication.class]
+     localizedStringForKey:englishTitle
+     value:nil
+     table:nil];
+    
+    if (localizedTitle == nil ||
+        [englishTitle isEqualToString:localizedTitle])
+        return
+        NSLocalizedString(englishTitle, nil);
+    
+    return
+    localizedTitle;
+}
+
 +(void)showWithTitle:(NSString             *)title
              message:(NSString             *)message
              buttons:(NSArray <NSString *> *)buttons
+               style:(NSAlertStyle          )style
              handler:(AlertButtonHandle     )handler
 {
-    NSAlert *alert =
-    [NSAlert alertWithError:self];
+    NSAlert *alert = NSAlert.new;
+
+    if (title)
+        alert.messageText     = title;
     
-    alert.messageText = title;
+    if (message)
+        alert.informativeText = message;
+    
+    alert.alertStyle      = style;
     
     if (buttons == nil)
-        [alert addButtonWithTitle:OK_BUTTON];
+        [alert addButtonWithTitle:[self localizedButtonTitle:@"OK"]];
     
-    for (AlertButton *button in buttons)
-        [alert addButtonWithTitle:button.title];
+    for (NSString *button in buttons)
+        [alert addButtonWithTitle:[self localizedButtonTitle:button]];
     
     for (NSButton *button in alert.buttons)
         button.tag =
@@ -272,7 +323,82 @@
         }];
     });
 }
-
 #endif
+
+@end
+
+static BOOL showErrorDisabled;
+
+@implementation NSError (Alert)
+
++(void)showErrorDisabled:(BOOL)disabled
+{
+    showErrorDisabled = disabled;
+}
+
+-(void)show
+{
+    if (showErrorDisabled)
+        return;
+    
+    [self showWithTitle:nil
+                buttons:nil
+                handler:nil];
+}
+
+-(void)showWithTitle:(NSString *)title
+{
+    if (showErrorDisabled)
+        return;
+    
+    [self showWithTitle:title
+                buttons:nil
+                handler:nil];
+}
+
+-(void)showWithTitle:(NSString             *)title
+             buttons:(NSArray <NSString *> *)buttons
+             handler:(AlertButtonHandle     )handler
+{
+    NSMutableArray <NSString *> *array =
+    NSMutableArray.new;
+    
+    if (buttons == nil)
+        [array addObject:@"OK"];
+    
+    else
+        [array addObjectsFromArray:buttons];
+
+    #if TARGET_OS_IPHONE
+    [Alert
+     showWithTitle:title
+     message:self.localizedDescription
+     buttons:array
+     handler:handler];
+    #else
+    
+    NSAlert *alert =
+    [NSAlert alertWithError:self];
+    
+    alert.messageText = title;
+
+    for (NSString *button in array)
+        [alert addButtonWithTitle:button];
+    
+    for (NSButton *button in alert.buttons)
+        button.tag =
+        [alert.buttons indexOfObject:button];
+    
+    dispatch_async(dispatch_get_main_queue(), ^(void)
+    {
+        [alert beginSheetModalForWindow:NSApp.mainWindow
+                      completionHandler:^(NSModalResponse returnCode)
+        {
+            if (handler)
+                handler([alert.buttons[returnCode] tag]);
+        }];
+    });
+    #endif
+}
 
 @end
