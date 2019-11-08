@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.2.0
+//  v.2.1
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -103,19 +103,26 @@
 
 @implementation Alert
 
-#if TARGET_OS_IPHONE
 +(NSString *)localizedButtonTitle:(NSString *)englishTitle;
 {
     if (englishTitle == nil)
         return
         nil;
     
+    #if TARGET_OS_IPHONE
     NSString *localizedTitle =
     [[NSBundle bundleForClass:UIApplication.class]
      localizedStringForKey:englishTitle
      value:nil
      table:nil];
-    
+    #else
+    NSString *localizedTitle =
+    [[NSBundle bundleForClass:NSApplication.class]
+     localizedStringForKey:englishTitle
+     value:nil
+     table:nil];
+    #endif
+
     if (localizedTitle == nil ||
         [englishTitle isEqualToString:localizedTitle])
         return
@@ -125,6 +132,7 @@
     localizedTitle;
 }
 
+#if TARGET_OS_IPHONE
 +(instancetype)current
 {
     static Alert *_current = nil;
@@ -219,7 +227,7 @@
         
         [controller addAction:
          [UIAlertAction
-          actionWithTitle:button
+          actionWithTitle:[self localizedButtonTitle:button]
           style:style
           handler:^(UIAlertAction *action)
           {
@@ -265,27 +273,6 @@
     });
 }
 #else
-
-+(NSString *)localizedButtonTitle:(NSString *)englishTitle;
-{
-    if (englishTitle == nil)
-        return
-        nil;
-    
-    NSString *localizedTitle =
-    [[NSBundle bundleForClass:NSApplication.class]
-     localizedStringForKey:englishTitle
-     value:nil
-     table:nil];
-    
-    if (localizedTitle == nil ||
-        [englishTitle isEqualToString:localizedTitle])
-        return
-        NSLocalizedString(englishTitle, nil);
-    
-    return
-    localizedTitle;
-}
 
 +(void)showWithTitle:(NSString             *)title
              message:(NSString             *)message

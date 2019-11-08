@@ -1,6 +1,6 @@
 //
 //  Alert.h
-//  v.2.0
+//  v.2.1
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
