@@ -16,6 +16,11 @@ Easy to use:
         // Delete
      }
  }];
+ 
+ NSError *error = nil;
+ ...
+ if (error)
+     [error show];
 ```  
 
 All button names indicated in English are automatically translated from the system. Or they are looking for a translation in the application localization files. For example, “Cancel” will be translated automatically, and “MyButtonName” will search for a translation in the application localization file.
