@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.2.1
+//  v.2.2
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -367,7 +367,8 @@ static BOOL showErrorDisabled;
     NSAlert *alert =
     [NSAlert alertWithError:self];
     
-    alert.messageText = title;
+    if (title)
+        alert.messageText = title;
 
     for (NSString *button in array)
         [alert addButtonWithTitle:button];
