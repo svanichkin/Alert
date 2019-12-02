@@ -7,7 +7,6 @@
 //
 
 #import "Alert.h"
-#import "Modal.h"
 
 @interface DefaultButtonStyle ()
 
