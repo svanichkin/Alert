@@ -1,12 +1,13 @@
 //
 //  Alert.m
-//  v.2.2
+//  v.2.3
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
 //
 
 #import "Alert.h"
+#import "Modal.h"
 
 @interface DefaultButtonStyle ()
 
@@ -175,14 +176,32 @@
         for (UIWindow *window in self.windows)
             // Если контроллер был dissmissed добавим в массив
             if (window.rootViewController.presentedViewController == NO)
+            {
+                window.hidden = YES;
+                
                 [dismessed addObject:window];
+            }
         
         if (dismessed.count)
             [self.windows removeObjectsInArray:dismessed];
         
         if (self.windows.count == 0)
             [self stopTimer];
+        
+        [self arrageZOrders];
     }];
+}
+
+-(void)arrageZOrders
+{
+    NSInteger i = 0;
+    
+    for (UIWindow *window in UIApplication.sharedApplication.windows)
+    {
+        window.windowLevel = i;
+        
+        i ++;
+    }
 }
 
 -(void)stopTimer
@@ -238,8 +257,16 @@
     
     dispatch_async(dispatch_get_main_queue(), ^(void)
     {
-        UIWindow *window =
-        UIWindow.new;
+        UIWindow *window;
+        
+        if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
+            window =
+            [UIWindow.alloc
+             initWithWindowScene:(UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject];
+        
+        else
+            window =
+            UIWindow.new;
 
         [Alert.current.windows addObject:window];
 
@@ -253,6 +280,8 @@
                 maxZOrder = w.windowLevel;
 
         window.windowLevel = maxZOrder + 1;
+        
+        [Alert.current arrageZOrders];
 
         [window makeKeyAndVisible];
 
