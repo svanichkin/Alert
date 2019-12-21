@@ -258,7 +258,8 @@
     {
         UIWindow *window;
         
-        if (@available(iOS 13.0, *)) {
+        if (@available(iOS 13.0, *))
+        {
             if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
                 window =
                 [UIWindow.alloc
