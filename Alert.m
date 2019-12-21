@@ -258,11 +258,16 @@
     {
         UIWindow *window;
         
-        if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
-            window =
-            [UIWindow.alloc
-             initWithWindowScene:(UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject];
-        
+        if (@available(iOS 13.0, *)) {
+            if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
+                window =
+                [UIWindow.alloc
+                 initWithWindowScene:(UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject];
+            
+            else
+                window =
+                UIWindow.new;
+        }
         else
             window =
             UIWindow.new;
