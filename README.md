@@ -1,6 +1,8 @@
 # Alert
 Alert - this is a simple class for displaying an alert from anywhere in your application (iOS and macOS)
 
+This library works on many projects such as Mubert, Morse, etc. Top of App Store.
+
 Easy to use:
 ```
 [Alert
