@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.2.3.1
+//  v.3.0
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -40,7 +40,8 @@
 -(unichar)characterAtIndex:(NSUInteger)index
 {
     return
-    [self.stringHolder characterAtIndex:index];
+    [self.stringHolder
+     characterAtIndex:index];
 }
 
 @end
@@ -51,9 +52,11 @@
                                  length:(NSUInteger)length
                            freeWhenDone:(BOOL      )freeBuffer
 {
-    self = [super initWithCharactersNoCopy:characters
-                                    length:length
-                              freeWhenDone:freeBuffer];
+    self =
+    [super
+     initWithCharactersNoCopy:characters
+     length:length
+     freeWhenDone:freeBuffer];
 
     return self;
 }
@@ -67,9 +70,10 @@
                            freeWhenDone:(BOOL      )freeBuffer
 {
     self =
-    [super initWithCharactersNoCopy:characters
-                             length:length
-                       freeWhenDone:freeBuffer];
+    [super
+     initWithCharactersNoCopy:characters
+     length:length
+     freeWhenDone:freeBuffer];
 
     return self;
 }
@@ -81,23 +85,23 @@
 -(CancelButtonStyle      *)cancelStyle
 {
     return
-    [CancelButtonStyle.alloc initWithString:self];
+    [CancelButtonStyle.alloc
+     initWithString:self];
 }
 
 -(DestructiveButtonStyle *)destructiveStyle
 {
     return
-    [DestructiveButtonStyle.alloc initWithString:self];
+    [DestructiveButtonStyle.alloc
+     initWithString:self];
 }
 
 @end
 
 @interface Alert()
 
-#if TARGET_OS_IPHONE
 @property (nonatomic, strong) NSTimer                     *timer;
 @property (nonatomic, strong) NSMutableArray <UIWindow *> *windows;
-#endif
 
 @end
 
@@ -109,19 +113,11 @@
         return
         nil;
     
-    #if TARGET_OS_IPHONE
     NSString *localizedTitle =
     [[NSBundle bundleForClass:UIApplication.class]
      localizedStringForKey:englishTitle
      value:nil
      table:nil];
-    #else
-    NSString *localizedTitle =
-    [[NSBundle bundleForClass:NSApplication.class]
-     localizedStringForKey:englishTitle
-     value:nil
-     table:nil];
-    #endif
 
     if (localizedTitle == nil ||
         [englishTitle isEqualToString:localizedTitle])
@@ -132,7 +128,6 @@
     localizedTitle;
 }
 
-#if TARGET_OS_IPHONE
 +(instancetype)current
 {
     static Alert *_current = nil;
@@ -248,10 +243,10 @@
           actionWithTitle:[self localizedButtonTitle:button]
           style:style
           handler:^(UIAlertAction *action)
-          {
-              if (handler)
-                  handler([array indexOfObject:button]);
-          }]];
+        {
+            if (handler)
+                handler([array indexOfObject:button]);
+        }]];
     }
     
     dispatch_async(dispatch_get_main_queue(), ^(void)
@@ -306,45 +301,138 @@
         [Alert.current startTimer];
     });
 }
-#else
 
-+(void)showWithTitle:(NSString             *)title
-             message:(NSString             *)message
-             buttons:(NSArray <NSString *> *)buttons
-               style:(NSAlertStyle          )style
-             handler:(AlertButtonHandle     )handler
++(NSArray <UITextField *> *)showWithTitle:(NSString              *)title
+                                  message:(NSString              *)message
+                             placeholders:(NSArray <NSString *>  *)placeholders
+                                  buttons:(NSArray <NSString *>  *)buttons
+                                  handler:(AlertInputsButtonHandle)handler
 {
-    NSAlert *alert = NSAlert.new;
-
-    if (title)
-        alert.messageText     = title;
+    UIAlertController *controller =
+    [UIAlertController
+     alertControllerWithTitle:title
+     message:message
+     preferredStyle:UIAlertControllerStyleAlert];
     
-    if (message)
-        alert.informativeText = message;
+    NSMutableArray *textFields;
     
-    alert.alertStyle      = style;
+    if (placeholders.count)
+    {
+        textFields = NSMutableArray.new;
+        
+        for (NSString *placeholder in placeholders)
+            [controller
+             addTextFieldWithConfigurationHandler:^(UITextField *textField)
+            {
+                [textFields
+                 addObject:textField];
+                
+                textField.placeholder     = placeholder;
+                textField.clearButtonMode = UITextFieldViewModeWhileEditing;
+            }];
+    }
+    
+    NSMutableArray *array =
+    NSMutableArray.new;
     
     if (buttons == nil)
-        [alert addButtonWithTitle:[self localizedButtonTitle:@"OK"]];
+    {
+        [array addObject:@"OK"];
+        [array addObject:@"Cancel".cancelStyle];
+    }
     
-    for (NSString *button in buttons)
-        [alert addButtonWithTitle:[self localizedButtonTitle:button]];
+    else
+        [array addObjectsFromArray:buttons];
     
-    for (NSButton *button in alert.buttons)
-        button.tag =
-        [alert.buttons indexOfObject:button];
+    for (id button in array)
+    {
+        UIAlertActionStyle style =
+        UIAlertActionStyleDefault;
+        
+        if ([button isKindOfClass:CancelButtonStyle.class])
+            style =
+            UIAlertActionStyleCancel;
+        
+        if ([button isKindOfClass:DestructiveButtonStyle.class])
+            style =
+            UIAlertActionStyleDestructive;
+        
+        [controller addAction:
+         [UIAlertAction
+          actionWithTitle:[self localizedButtonTitle:button]
+          style:style
+          handler:^(UIAlertAction *action)
+          {
+            NSMutableArray *results = NSMutableArray.new;
+            
+            for (UITextField *textField in controller.textFields)
+                if (textField.text.length == 0)
+                    [results addObject:@""];
+                
+                else
+                    [results addObject:textField.text];
+            
+            if (handler)
+                handler([array indexOfObject:button],
+                        results.copy);
+        }]];
+    }
     
     dispatch_async(dispatch_get_main_queue(), ^(void)
     {
-        [alert beginSheetModalForWindow:NSApp.mainWindow
-                      completionHandler:^(NSModalResponse returnCode)
+        UIWindow *window;
+        
+        if (@available(iOS 13.0, *))
         {
-            if (handler)
-                handler([alert.buttons[returnCode] tag]);
-        }];
+            if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
+                window =
+                [UIWindow.alloc
+                 initWithWindowScene:(UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject];
+            
+            else
+                window =
+                UIWindow.new;
+        }
+        else
+            window =
+            UIWindow.new;
+        
+        [Alert.current.windows addObject:window];
+        
+        window.backgroundColor =
+        UIColor.clearColor;
+        
+        NSInteger maxZOrder = NSIntegerMin;
+        
+        for (UIWindow *w in UIApplication.sharedApplication.windows)
+            if (w.windowLevel > maxZOrder)
+                maxZOrder = w.windowLevel;
+        
+        window.windowLevel = maxZOrder + 1;
+        
+        [Alert.current arrageZOrders];
+        
+        [window makeKeyAndVisible];
+        
+        window.rootViewController =
+        UIViewController.new;
+        
+        controller.modalPresentationStyle = UIModalPresentationFullScreen;
+        
+        if (@available(iOS 13.0, *))
+            controller.modalInPresentation = YES;
+        
+        [window.rootViewController
+         presentViewController:controller
+         animated:YES
+         completion:nil];
+        
+        [Alert.current startTimer];
     });
+    
+    return
+    textFields.copy;
 }
-#endif
 
 @end
 
@@ -362,9 +450,10 @@ static BOOL showErrorDisabled;
     if (showErrorDisabled)
         return;
     
-    [self showWithTitle:nil
-                buttons:nil
-                handler:nil];
+    [self
+     showWithTitle:nil
+     buttons:nil
+     handler:nil];
 }
 
 -(void)showWithTitle:(NSString *)title
@@ -372,9 +461,10 @@ static BOOL showErrorDisabled;
     if (showErrorDisabled)
         return;
     
-    [self showWithTitle:title
-                buttons:nil
-                handler:nil];
+    [self
+     showWithTitle:title
+     buttons:nil
+     handler:nil];
 }
 
 -(void)showWithTitle:(NSString             *)title
@@ -390,37 +480,11 @@ static BOOL showErrorDisabled;
     else
         [array addObjectsFromArray:buttons];
 
-    #if TARGET_OS_IPHONE
     [Alert
      showWithTitle:title
      message:self.localizedDescription
      buttons:array
      handler:handler];
-    #else
-    
-    NSAlert *alert =
-    [NSAlert alertWithError:self];
-    
-    if (title)
-        alert.messageText = title;
-
-    for (NSString *button in array)
-        [alert addButtonWithTitle:button];
-    
-    for (NSButton *button in alert.buttons)
-        button.tag =
-        [alert.buttons indexOfObject:button];
-    
-    dispatch_async(dispatch_get_main_queue(), ^(void)
-    {
-        [alert beginSheetModalForWindow:NSApp.mainWindow
-                      completionHandler:^(NSModalResponse returnCode)
-        {
-            if (handler)
-                handler([alert.buttons[returnCode] tag]);
-        }];
-    });
-    #endif
 }
 
 @end
