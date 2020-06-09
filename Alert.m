@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.3.1
+//  v.3.1.1
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -209,9 +209,9 @@
     self.timer = nil;
 }
 
-+(void)showWindowWithController:(UIAlertController *)c
++(void)showWindowWithController:(UIViewController *)c
 {
-    UIAlertController __block *controller = c;
+    UIViewController __block *controller = c;
     
     dispatch_async(dispatch_get_main_queue(), ^(void)
     {
@@ -260,8 +260,6 @@
         
         if (@available(iOS 13.0, *))
             controller.modalInPresentation = YES;
-        
-        controller.popoverPresentationController.passthroughViews = @[window, controller.view, window.rootViewController.view];
         
         [window.rootViewController
          presentViewController:controller
@@ -520,6 +518,81 @@
                 handler([array indexOfObject:button]);
         }]];
     }
+    
+    [self
+     showWindowWithController:controller];
+}
+
++(void)shareItems:(NSArray *)items
+           sender:(id       )sender
+{
+    BOOL isIpad =
+    UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
+    
+    UIBarButtonItem *barButtonItem;
+    UIView          *sourceView;
+    
+    if ([sender
+         isKindOfClass:UIBarButtonItem.class])
+        barButtonItem =
+        sender;
+    
+    else if ([sender
+              isKindOfClass:UIView.class])
+    {
+        sourceView =
+        sender;
+        
+        if (sourceView.frame.size.width  * 1.5 > UIScreen.mainScreen.bounds.size.width &&
+            sourceView.frame.size.height * 1.5 > UIScreen.mainScreen.bounds.size.height)
+            sourceView = nil;
+    }
+    
+    NSMutableArray *readyItems =
+    NSMutableArray.new;
+    
+    for (int i = 0; i < items.count; i ++)
+    {
+        id item = items[i];
+        
+        if ([item
+             isKindOfClass:UIImage.class])
+        {
+            NSString *tempDirectory =
+            [NSTemporaryDirectory()
+             stringByAppendingPathComponent:[NSString
+                                             stringWithFormat:@"image%i.png", i]];
+            
+            [UIImagePNGRepresentation(item)
+             writeToFile:tempDirectory
+             atomically:YES];
+            
+            NSURL *imageURL =
+            [NSURL
+             fileURLWithPath:tempDirectory];
+            
+            [readyItems
+             addObject:imageURL];
+        }
+        
+        else
+            [readyItems
+             addObject:item];
+    }
+    
+    UIActivityViewController *controller =
+    [UIActivityViewController.alloc
+     initWithActivityItems:readyItems.copy
+     applicationActivities:nil];
+    
+    controller.popoverPresentationController.barButtonItem =
+    barButtonItem;
+    
+    controller.popoverPresentationController.sourceView =
+    sourceView;
+    
+    controller.popoverPresentationController.sourceRect =
+    sourceView.frame;
     
     [self
      showWindowWithController:controller];

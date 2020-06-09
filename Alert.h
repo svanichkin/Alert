@@ -1,6 +1,6 @@
 //
 //  Alert.h
-//  v.3.1
+//  v.3.1.1
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -76,5 +76,8 @@ typedef void(^AlertInputsButtonHandle)(NSInteger             buttonIndex,
              message:(NSString             *)message
              buttons:(NSArray <NSString *> *)buttons
              handler:(AlertButtonHandle     )handler;
+
++(void)shareItems:(NSArray *)items
+           sender:(id       )sender;
 
 @end
