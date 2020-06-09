@@ -1,6 +1,6 @@
 //
 //  Alert.m
-//  v.3.0
+//  v.3.1
 //
 //  Created by Сергей Ваничкин on 3/12/19.
 //  Copyright © 2019 Сергей Ваничкин. All rights reserved.
@@ -173,16 +173,19 @@
             {
                 window.hidden = YES;
                 
-                [dismessed addObject:window];
+                [dismessed
+                 addObject:window];
             }
         
         if (dismessed.count)
             [self.windows removeObjectsInArray:dismessed];
         
         if (self.windows.count == 0)
-            [self stopTimer];
+            [self
+             stopTimer];
         
-        [self arrageZOrders];
+        [self
+         arrageZOrders];
     }];
 }
 
@@ -200,9 +203,104 @@
 
 -(void)stopTimer
 {
-    [self.timer invalidate];
+    [self.timer
+     invalidate];
     
     self.timer = nil;
+}
+
++(void)showWindowWithController:(UIAlertController *)c
+{
+    UIAlertController __block *controller = c;
+    
+    dispatch_async(dispatch_get_main_queue(), ^(void)
+    {
+        UIWindow *window;
+        
+        if (@available(iOS 13.0, *))
+        {
+            if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
+                window =
+                [UIWindow.alloc
+                 initWithWindowScene:(UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject];
+            
+            else
+                window =
+                UIWindow.new;
+        }
+        else
+            window =
+            UIWindow.new;
+        
+        [Alert.current.windows
+         addObject:window];
+        
+        window.backgroundColor =
+        UIColor.clearColor;
+        
+        NSInteger maxZOrder = NSIntegerMin;
+        
+        for (UIWindow *w in UIApplication.sharedApplication.windows)
+            if (w.windowLevel > maxZOrder)
+                maxZOrder = w.windowLevel;
+        
+        window.windowLevel = maxZOrder + 1;
+        
+        [Alert.current
+         arrageZOrders];
+        
+        [window
+         makeKeyAndVisible];
+        
+        window.rootViewController =
+        UIViewController.new;
+        
+        controller.modalPresentationStyle =
+        UIModalPresentationFullScreen;
+        
+        if (@available(iOS 13.0, *))
+            controller.modalInPresentation = YES;
+        
+        controller.popoverPresentationController.passthroughViews = @[window, controller.view, window.rootViewController.view];
+        
+        [window.rootViewController
+         presentViewController:controller
+         animated:YES
+         completion:^
+        {
+            if (controller.popoverPresentationController)
+                [controller.view.superview.superview.superview.subviews[0]
+                 addGestureRecognizer:[UITapGestureRecognizer.alloc
+                                       initWithTarget:self
+                                       action:@selector(tapGestureRecognizer:)]];
+            else
+                [window
+                 addGestureRecognizer:[UITapGestureRecognizer.alloc
+                                       initWithTarget:self
+                                       action:@selector(tapGestureRecognizer:)]];
+        }];
+        
+        [Alert.current
+         startTimer];
+    });
+}
+
++(void)tapGestureRecognizer:(UITapGestureRecognizer *)gestureRecognizer
+{
+    UIWindow *window;
+    
+    if ([gestureRecognizer.view
+         isKindOfClass:UIWindow.class])
+        window =
+        (UIWindow *)gestureRecognizer.view;
+    
+    else
+        window =
+        gestureRecognizer.view.window;
+
+    [window.rootViewController
+     dismissViewControllerAnimated:YES
+     completion:nil];
 }
 
 +(void)showWithTitle:(NSString             *)title
@@ -249,57 +347,8 @@
         }]];
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^(void)
-    {
-        UIWindow *window;
-        
-        if (@available(iOS 13.0, *))
-        {
-            if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
-                window =
-                [UIWindow.alloc
-                 initWithWindowScene:(UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject];
-            
-            else
-                window =
-                UIWindow.new;
-        }
-        else
-            window =
-            UIWindow.new;
-
-        [Alert.current.windows addObject:window];
-
-        window.backgroundColor =
-        UIColor.clearColor;
-
-        NSInteger maxZOrder = NSIntegerMin;
-
-        for (UIWindow *w in UIApplication.sharedApplication.windows)
-            if (w.windowLevel > maxZOrder)
-                maxZOrder = w.windowLevel;
-
-        window.windowLevel = maxZOrder + 1;
-        
-        [Alert.current arrageZOrders];
-
-        [window makeKeyAndVisible];
-
-        window.rootViewController =
-        UIViewController.new;
-
-        controller.modalPresentationStyle = UIModalPresentationFullScreen;
-
-        if (@available(iOS 13.0, *))
-            controller.modalInPresentation = YES;
-        
-        [window.rootViewController
-         presentViewController:controller
-         animated:YES
-         completion:nil];
-
-        [Alert.current startTimer];
-    });
+    [self
+     showWindowWithController:controller];
 }
 
 +(NSArray <UITextField *> *)showWithTitle:(NSString              *)title
@@ -378,60 +427,102 @@
         }]];
     }
     
-    dispatch_async(dispatch_get_main_queue(), ^(void)
-    {
-        UIWindow *window;
-        
-        if (@available(iOS 13.0, *))
-        {
-            if (UIApplication.sharedApplication.connectedScenes.allObjects.firstObject)
-                window =
-                [UIWindow.alloc
-                 initWithWindowScene:(UIWindowScene *)UIApplication.sharedApplication.connectedScenes.allObjects.firstObject];
-            
-            else
-                window =
-                UIWindow.new;
-        }
-        else
-            window =
-            UIWindow.new;
-        
-        [Alert.current.windows addObject:window];
-        
-        window.backgroundColor =
-        UIColor.clearColor;
-        
-        NSInteger maxZOrder = NSIntegerMin;
-        
-        for (UIWindow *w in UIApplication.sharedApplication.windows)
-            if (w.windowLevel > maxZOrder)
-                maxZOrder = w.windowLevel;
-        
-        window.windowLevel = maxZOrder + 1;
-        
-        [Alert.current arrageZOrders];
-        
-        [window makeKeyAndVisible];
-        
-        window.rootViewController =
-        UIViewController.new;
-        
-        controller.modalPresentationStyle = UIModalPresentationFullScreen;
-        
-        if (@available(iOS 13.0, *))
-            controller.modalInPresentation = YES;
-        
-        [window.rootViewController
-         presentViewController:controller
-         animated:YES
-         completion:nil];
-        
-        [Alert.current startTimer];
-    });
+    [self
+     showWindowWithController:controller];
     
     return
     textFields.copy;
+}
+
++(void)showWithTitle:(NSString             *)title
+   actionSheetSender:(id                    )sender // UIView or UIBarButtonItem or UIButton etc
+             message:(NSString             *)message
+             buttons:(NSArray <NSString *> *)buttons
+             handler:(AlertButtonHandle     )handler
+{
+    BOOL isIpad =
+    UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
+    
+    UIBarButtonItem *barButtonItem;
+    UIView          *sourceView;
+    
+    if ([sender
+         isKindOfClass:UIBarButtonItem.class])
+        barButtonItem =
+        sender;
+    
+    else if ([sender
+              isKindOfClass:UIView.class])
+    {
+        sourceView =
+        sender;
+        
+        if (sourceView.frame.size.width  * 1.5 > UIScreen.mainScreen.bounds.size.width &&
+            sourceView.frame.size.height * 1.5 > UIScreen.mainScreen.bounds.size.height)
+            sourceView = nil;
+    }
+    
+    UIAlertController *controller;
+    
+    if (isIpad && !barButtonItem & !sourceView)
+        controller =
+        [UIAlertController
+         alertControllerWithTitle:title
+         message:message
+         preferredStyle:UIAlertControllerStyleAlert];
+
+    else
+    {
+        controller =
+        [UIAlertController
+         alertControllerWithTitle:title
+         message:message
+         preferredStyle:UIAlertControllerStyleActionSheet];
+        
+        controller.popoverPresentationController.barButtonItem =
+        barButtonItem;
+        
+        controller.popoverPresentationController.sourceView =
+        sourceView;
+    }
+    
+    NSMutableArray *array =
+    NSMutableArray.new;
+    
+    if (buttons == nil)
+        [array addObject:@"OK"];
+    
+    else
+        [array addObjectsFromArray:buttons];
+    
+    for (id button in array)
+    {
+        UIAlertActionStyle style =
+        UIAlertActionStyleDefault;
+        
+        if ([button
+             isKindOfClass:CancelButtonStyle.class])
+            style =
+            UIAlertActionStyleCancel;
+        
+        if ([button
+             isKindOfClass:DestructiveButtonStyle.class])
+            style =
+            UIAlertActionStyleDestructive;
+        
+        [controller
+         addAction:[UIAlertAction
+                    actionWithTitle:[self localizedButtonTitle:button]
+                    style:style
+                    handler:^(UIAlertAction *action)
+        {
+            if (handler)
+                handler([array indexOfObject:button]);
+        }]];
+    }
+    
+    [self
+     showWindowWithController:controller];
 }
 
 @end
