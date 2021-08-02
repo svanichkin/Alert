@@ -184,7 +184,7 @@
             if (window.rootViewController.presentedViewController == NO)
             {
                 window.hidden = YES;
-                
+
                 [dismessed
                  addObject:window];
             }
@@ -324,7 +324,7 @@
      message:message
      preferredStyle:UIAlertControllerStyleAlert];
     
-    NSMutableArray *array =
+    __block NSMutableArray *array =
     NSMutableArray.new;
     
     if (buttons == nil)
@@ -450,9 +450,6 @@
              buttons:(NSArray <NSString *> *)buttons
              handler:(AlertButtonHandle     )handler
 {
-    BOOL isIpad =
-    UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
-    
     UIBarButtonItem *barButtonItem;
     UIView          *sourceView;
     
@@ -473,6 +470,9 @@
     }
     
     UIAlertController *controller;
+    
+    BOOL isIpad =
+    UIDevice.currentDevice.userInterfaceIdiom == UIUserInterfaceIdiomPad;
     
     if (isIpad && !barButtonItem & !sourceView)
         controller =
@@ -528,6 +528,10 @@
         {
             if (handler)
                 handler([array indexOfObject:button]);
+            
+            [controller
+             dismissViewControllerAnimated:YES
+             completion:nil];
         }]];
     }
     
@@ -535,12 +539,10 @@
      showWindowWithController:controller];
 }
 
-+(void)shareItems:(NSArray *)items
-           sender:(id       )sender
++(void)shareItems:(NSArray          *)items
+           sender:(id                )sender
+           target:(UIViewController *)target
 {
-    BOOL isIpad =
-    UI_USER_INTERFACE_IDIOM() == UIUserInterfaceIdiomPad;
-    
     UIBarButtonItem *barButtonItem;
     UIView          *sourceView;
     
@@ -606,8 +608,15 @@
     controller.popoverPresentationController.sourceRect =
     sourceView.frame;
     
-    [self
-     showWindowWithController:controller];
+    if (target == nil)
+        [self
+        showWindowWithController:controller];
+    
+    else
+        [target
+         presentViewController:controller
+         animated:YES
+         completion:nil];
 }
 
 @end

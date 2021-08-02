@@ -90,8 +90,9 @@ typedef void(^AlertInputsButtonHandle)(NSInteger             buttonIndex,
              buttons:(NSArray <NSString *> *)buttons
              handler:(AlertButtonHandle     )handler;
 
-+(void)shareItems:(NSArray *)items
-           sender:(id       )sender;
++(void)shareItems:(NSArray          *)items
+           sender:(id                )sender
+           target:(UIViewController *)target;
 
 @end
 
