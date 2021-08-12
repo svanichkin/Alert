@@ -15,7 +15,7 @@ Pod::Spec.new do |spec|
   #  summary should be tweet-length, and the description more in depth.
   #
 
-  spec.name         = "👽Alert"
+  spec.name         = "svanichkin_Alert"
   spec.version      = "0.0.2"
   spec.summary      = "Class for easy creation of alerts. Errors, actions, etc."
 
