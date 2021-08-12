@@ -16,7 +16,7 @@ Pod::Spec.new do |spec|
   #
 
   spec.name         = "svanichkin_Alert"
-  spec.version      = "0.0.2"
+  spec.version      = "0.0.3"
   spec.summary      = "Class for easy creation of alerts. Errors, actions, etc."
 
   # This description is used to generate tags and improve search results.
