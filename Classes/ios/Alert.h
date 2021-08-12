@@ -47,8 +47,6 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "TargetConditionals.h"
-
 #import <UIKit/UIKit.h>
 
 @interface DefaultButtonStyle : NSString
