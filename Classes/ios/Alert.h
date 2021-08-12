@@ -1,9 +1,9 @@
 //
 //  Alert.h
-//  v.3.2
+//  v.3.2.1
 //
-//  Created by Сергей Ваничкин on 3/12/19.
-//  Copyright © 2019 Сергей Ваничкин. All rights reserved.
+//  Created by Sergey Vanichkin on 3/12/19.
+//  Copyright © 2019 Sergey Vanichkin. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -18,7 +18,7 @@
 //  limitations under the License.
 //
 //
-//  Пример использования
+//  Sample
 //
 //  [Alert
 //   showWithTitle:@"Title"
@@ -34,7 +34,8 @@
 //       }
 //   }];
 //
-//  Или сразу для ошибки
+//
+//  Sample for easy alert errors
 //
 //  NSError *error = nil;
 //
@@ -44,6 +45,13 @@
 //      return
 //      [error show];
 //
+//
+//  Sample for sharing all data with system
+//
+//  [Alert
+//   shareItems:@[UIImage.new, @"String"]
+//   sender:senderBarButton
+//   target:self]
 //
 
 #import <Foundation/Foundation.h>

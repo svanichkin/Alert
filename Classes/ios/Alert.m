@@ -1,9 +1,9 @@
 //
 //  Alert.m
-//  v.3.2
+//  v.3.2.1
 //
-//  Created by Сергей Ваничкин on 3/12/19.
-//  Copyright © 2019 Сергей Ваничкин. All rights reserved.
+//  Created by Sergey Vanichkin on 3/12/19.
+//  Copyright © 2019 Sergey Vanichkin. All rights reserved.
 //
 //  Licensed under the Apache License, Version 2.0 (the "License");
 //  you may not use this file except in compliance with the License.
@@ -119,7 +119,7 @@
 
 @implementation Alert
 
-+(NSString *)localizedButtonTitle:(NSString *)englishTitle;
++(NSString *)localizedButtonTitle:(NSString *)englishTitle
 {
     if (englishTitle == nil)
         return
